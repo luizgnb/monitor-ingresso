@@ -1,0 +1,47 @@
+name: Monitor de ingressos
+
+on:
+  schedule:
+    # A cada 10 minutos, das 08h as 23h de Brasilia (UTC-3).
+    - cron: "*/10 11-23 * * *"
+    - cron: "*/10 0-2 * * *"
+  workflow_dispatch:   # botao para rodar na mao quando quiser
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor-ingressos
+  cancel-in-progress: false
+
+jobs:
+  checar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Rodar monitor
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor.py
+
+      - name: Salvar estado
+        run: |
+          if [[ -n "$(git status --porcelain estado.json)" ]]; then
+            git config user.name  "monitor-bot"
+            git config user.email "monitor-bot@users.noreply.github.com"
+            git add estado.json
+            git commit -m "estado: $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase --autostash
+            git push
+          else
+            echo "Sem mudanca no estado."
+          fi
