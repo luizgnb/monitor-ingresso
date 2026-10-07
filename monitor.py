@@ -22,8 +22,8 @@ from bs4 import BeautifulSoup
 # ----------------------------------------------------------------------------
 
 PAGINAS = [
-    "https://www.flamengo.com.br/ingressos",
-    "https://www.flamengo.com.br/noticias/ingressos",
+    "https://ingressos.flamengo.com.br/member/sector?event=42450",
+    "https://ingressos.flamengo.com.br/member/sector?event=41427",
 ]
 
 # Se o link novo contiver qualquer um destes termos, o alerta vira URGENTE.
